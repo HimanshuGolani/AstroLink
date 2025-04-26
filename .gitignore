@@ -12,7 +12,7 @@ target/
 .settings
 .springBeans
 .sts4-cache
-./src/main/java/resources/certs
+/src/main/java/resources/certs
 
 ### IntelliJ IDEA ###
 .idea
