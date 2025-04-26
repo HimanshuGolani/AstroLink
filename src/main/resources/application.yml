@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: Astro-Link
+
+  profiles:
+    active: dev
+
+  data:
+    mongodb:
+      uri: mongodb+srv://astro:astro@cluster0.lfkyrwf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0/astrodb
+
+server:
+  port: 8090
+
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
