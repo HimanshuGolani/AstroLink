@@ -12,7 +12,7 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handelWebSocketDisconnectListener(SessionDisconnectEvent event) {
-
+//             TODO: Delete the chat room and remove that from the db as well.
     }
 
 }

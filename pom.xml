@@ -87,7 +87,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>6.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.aspectj</groupId>
@@ -104,6 +103,19 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-messaging</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.github.xingfudeshi</groupId>
+			<artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+			<version>4.6.0</version>
 		</dependency>
 
 		<!-- Testing -->

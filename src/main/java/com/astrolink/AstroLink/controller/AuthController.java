@@ -3,6 +3,7 @@ package com.astrolink.AstroLink.controller;
 import com.astrolink.AstroLink.dto.request.RegistrationRequest;
 import com.astrolink.AstroLink.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest registrationRequest){
-        return null;
+        userService.register(registrationRequest);
+        return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
