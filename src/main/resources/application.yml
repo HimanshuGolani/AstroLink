@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: Astro-Link
+
+  profiles:
+    active: dev
+
+  data:
+    mongodb:
+      uri: mongodb+srv://astro:astro@cluster0.lfkyrwf.mongodb.net/astrodb?retryWrites=true&w=majority&appName=Cluster0
+
+server:
+  port: 8090
+
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+
+stripe:
+  secretKey: sk_test_51RJTo3FJbGrZ6TQkSa8ebMlEbg1NdOoi1b6QOlf37uW2jpwYiwu4y8LmmzaS17W2CUHVTGiRSH6IK8cqg6PzN4VO007CMDnbnn
+  success-url: http://localhost:8080/success
+  cancel-url: http://localhost:8080/cancel
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+springfox:
+  documentation:
+     swagger-ui.base-url: /swagger-ui
