@@ -100,7 +100,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
                 .consultationRequestId(requestId)
                 .userId(user.getId())
                 .astrologerId(astrologerId)
-                .startedAt(LocalDateTime.now())
+                .lastActive(LocalDateTime.now())
                 .build();
 
         chatSessionRepository.save(chatSession);
@@ -149,8 +149,6 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
         // Close all chat sessions
         for (ChatSession session : chatSessions) {
-            session.setEndedAt(LocalDateTime.now());
-
             // Remove from active chat sessions for both user and astrologer
             User user = userRepository.findById(session.getUserId()).orElse(null);
             User astrologer = userRepository.findById(session.getAstrologerId()).orElse(null);

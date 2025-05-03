@@ -3,12 +3,10 @@ package com.astrolink.AstroLink.controller;
 import com.astrolink.AstroLink.dto.response.ChatInitiationResponse;
 import com.astrolink.AstroLink.dto.response.ChatSessionDto;
 import com.astrolink.AstroLink.service.ChatService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -29,6 +27,8 @@ public ResponseEntity<ChatInitiationResponse> createChat(
     return ResponseEntity.ok(chatSession);
 }
 //    get list of chat of user small just chatId and name of chat
-// get a chat perticularly
-//    get messages of the chat
+    @GetMapping("/")
+    public
+//    get a chat perticular chat by the id of it including messages
+
 }
