@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -18,7 +19,7 @@ public class ChatMessageDto {
     private UUID chatSessionId;
     private UUID senderId;
     private String content;
-    private String imageUrl;
+    private List<String> imageUrl;
     private LocalDateTime timestamp;
     private MessageType type = MessageType.CHAT; // Default type
 }
