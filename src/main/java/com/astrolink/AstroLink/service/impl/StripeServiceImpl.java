@@ -1,9 +1,13 @@
 package com.astrolink.AstroLink.service.impl;
 
+import com.astrolink.AstroLink.entity.ConsultationRequest;
+import com.astrolink.AstroLink.entity.PaymentStatus;
 import com.astrolink.AstroLink.exception.custom.PaymentException;
 import com.astrolink.AstroLink.dto.request.PaymentRequestDto;
 import com.astrolink.AstroLink.dto.response.PaymentStatusResponseDto;
+import com.astrolink.AstroLink.repository.ConsultationRequestRepository;
 import com.astrolink.AstroLink.service.StripeService;
+import com.astrolink.AstroLink.util.FinderClassUtil;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -13,9 +17,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class StripeServiceImpl implements StripeService {
+
+    private final FinderClassUtil finderClassUtil;
+    private final ConsultationRequestRepository consultationRequestRepository;
 
     @Value("${stripe.secret-key}")
     private String secretKey;
@@ -74,14 +83,16 @@ public class StripeServiceImpl implements StripeService {
         }
     }
 
-    public PaymentStatusResponseDto verifyPayment(String sessionId) {
+    public PaymentStatusResponseDto verifyPayment(String sessionId, UUID consultationId) {
 
         try {
             Session session = Session.retrieve(sessionId);
 
             String paymentStatus = session.getPaymentStatus();
-// TODO : replcae this dto and change the variable in user db. to payed
+            ConsultationRequest consultationRequest = finderClassUtil.findConsultationRequestById(consultationId);
             if ("paid".equalsIgnoreCase(paymentStatus)) {
+                consultationRequest.setPaymentStatus(PaymentStatus.PAID);
+                consultationRequestRepository.save(consultationRequest);
                 return PaymentStatusResponseDto.builder()
                         .status("SUCCESS")
                         .message("Payment has been successfully verified")
@@ -89,6 +100,8 @@ public class StripeServiceImpl implements StripeService {
                         .sessionUrl(session.getUrl())
                         .build();
             } else {
+                consultationRequest.setPaymentStatus(PaymentStatus.FAILED);
+                consultationRequestRepository.save(consultationRequest);
                 return PaymentStatusResponseDto.builder()
                         .status("FAILED")
                         .message("Payment not completed")

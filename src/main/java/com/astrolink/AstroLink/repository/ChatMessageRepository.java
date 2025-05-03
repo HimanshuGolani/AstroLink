@@ -5,4 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.UUID;
 
-public interface ChatMessageRepository extends MongoRepository<ChatMessage, UUID> {}
+public interface ChatMessageRepository extends MongoRepository<ChatMessage, UUID> {
+
+}

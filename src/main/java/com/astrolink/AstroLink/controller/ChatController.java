@@ -27,8 +27,15 @@ public ResponseEntity<ChatInitiationResponse> createChat(
     return ResponseEntity.ok(chatSession);
 }
 //    get list of chat of user small just chatId and name of chat
-//    @GetMapping("/")
-//    public
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getAllSmallChats(@PathVariable UUID userId){
+        return null;
+    }
 //    get a chat perticular chat by the id of it including messages
+    @GetMapping("/{userId}/{chatId}")
+    public ResponseEntity<?> getChat(@PathVariable UUID userId, @PathVariable UUID chatId){
+         return null;
+    }
+
 
 }

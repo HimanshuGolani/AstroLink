@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +15,7 @@ import java.util.List;
 @Builder
 public class MessageDto {
     private String content;
-    private String sender;
+    private UUID senderId;
     private MessageType messageType;
     private List<String> imageUrls;
 }

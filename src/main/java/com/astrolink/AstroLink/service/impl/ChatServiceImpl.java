@@ -11,9 +11,9 @@ import com.astrolink.AstroLink.entity.PaymentStatus;
 import com.astrolink.AstroLink.entity.User;
 import com.astrolink.AstroLink.exception.custom.UserBlockedException;
 import com.astrolink.AstroLink.repository.ChatSessionRepository;
-import com.astrolink.AstroLink.repository.ConsultationRequestRepository;
 import com.astrolink.AstroLink.repository.UserRepository;
 import com.astrolink.AstroLink.service.ChatService;
+import com.astrolink.AstroLink.util.FinderClassUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,33 +24,21 @@ import java.util.UUID;
 public class ChatServiceImpl implements ChatService {
 
     private final ChatSessionRepository chatSessionRepository;
-    private final ConsultationRequestRepository consultationRequestRepository;
     private final UserRepository userRepository;
     private final StripeServiceImpl stripeService;
     private final ChatMapper chatMapper;
+    private final FinderClassUtil finderClassUtil;
 
-    private int findChatSessionById(UUID consultationId){
-        return chatSessionRepository
-                .findByConsultationsRequestId(consultationId).size();
-    }
-    private User findUserById(UUID userId){
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-    private ConsultationRequest findConsultationRequestById(UUID consultationRequestId){
-        return consultationRequestRepository.findById(consultationRequestId)
-                .orElseThrow(() -> new RuntimeException("Consultation Request not found"));
-    }
 
     public ChatInitiationResponse createChat(UUID astrologerId, UUID consultationRequestId) {
         try {
-        User astrologer = findUserById(astrologerId);
-        ConsultationRequest consultationRequest = findConsultationRequestById(consultationRequestId);
-        User consultationRequestCreator = findUserById(consultationRequest.getUserId());
+        User astrologer = finderClassUtil.findUserById(astrologerId);
+        ConsultationRequest consultationRequest = finderClassUtil.findConsultationRequestById(consultationRequestId);
+        User consultationRequestCreator = finderClassUtil.findUserById(consultationRequest.getUserId());
         if (consultationRequestCreator.getBlockedAstrologerIds().contains(astrologerId)) {
             throw new UserBlockedException("Astrologer is blocked by the user, cannot accept this request");
         }
-        int countOfConsultationRequests = findChatSessionById(consultationRequestId);
+        int countOfConsultationRequests = finderClassUtil.findChatSessionById(consultationRequestId);
         ChatInitiationResponse response = new ChatInitiationResponse();
         boolean paymentRequired = (countOfConsultationRequests >= 4 && countOfConsultationRequests % 4 == 0) && consultationRequest.getPaymentStatus() != PaymentStatus.PAID;
         if (paymentRequired) {
