@@ -3,6 +3,7 @@ package com.astrolink.AstroLink.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -28,13 +29,15 @@ public class ConsultationRequest implements Comparable<ConsultationRequest> {
 
     @DBRef
     private List<User> acceptingAstrologersId = new ArrayList<>();
-    private boolean isOpenForAll;
+    @Setter
+    private boolean openForAll;
 
     private LocalDateTime createdAt;
 
     public boolean isOpenForAll() {
         return acceptingAstrologersId.size() < 3;
     }
+
 
     @Override
     public int compareTo(ConsultationRequest o) {

@@ -13,8 +13,9 @@ server:
   port: 8090
 
 rsa:
-  private-key: classpath:certs/private.pem
   public-key: classpath:certs/public.pem
+  private-key: classpath:certs/private.pem
+
 
 stripe:
   secretKey: sk_test_51RJTo3FJbGrZ6TQkSa8ebMlEbg1NdOoi1b6QOlf37uW2jpwYiwu4y8LmmzaS17W2CUHVTGiRSH6IK8cqg6PzN4VO007CMDnbnn

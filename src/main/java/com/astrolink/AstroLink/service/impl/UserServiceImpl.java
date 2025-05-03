@@ -20,37 +20,4 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
-    private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public void register(RegistrationRequest registrationRequest) {
-
-        if (userRepository.existsByEmail(registrationRequest.getEmail())) {
-            throw new EmailAlreadyExistsException("Email already exists, please try with another email");
-        }
-
-        try {
-            User user = this.objectMapper.convertValue(registrationRequest, User.class);
-            user.setId(UUID.randomUUID());
-
-            Role role = RoleMapper.mapToRole(registrationRequest.getRole());
-            user.setRole(role);
-
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
-
-        }
-        catch (IllegalArgumentException e){
-            throw new IllegalArgumentException(e.getMessage());
-        }
-        catch (DuplicateKeyException e) {
-            throw new EmailAlreadyExistsException("This email is already registered.");
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Database access error occurred while registering the user.");
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected error during registration: " + e.getMessage());
-        }
-    }
 }

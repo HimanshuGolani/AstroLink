@@ -1,4 +1,5 @@
 package com.astrolink.AstroLink.entity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,4 +23,5 @@ public class ChatMessage {
     private String content;
     private String imageUrl;
     private LocalDateTime timestamp;
+    private MessageType type = MessageType.CHAT; // Default type
 }

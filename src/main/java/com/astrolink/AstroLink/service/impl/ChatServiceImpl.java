@@ -6,6 +6,7 @@ import com.astrolink.AstroLink.dto.response.ChatSessionDto;
 import com.astrolink.AstroLink.entity.ChatMessage;
 import com.astrolink.AstroLink.entity.ChatSession;
 import com.astrolink.AstroLink.entity.ConsultationRequest;
+import com.astrolink.AstroLink.entity.MessageType;
 import com.astrolink.AstroLink.exception.custom.DataNotFoundException;
 import com.astrolink.AstroLink.repository.ChatMessageRepository;
 import com.astrolink.AstroLink.repository.ChatSessionRepository;
@@ -28,6 +29,9 @@ public class ChatServiceImpl implements ChatService {
     private final ConsultationRequestRepository consultationRequestRepository;
     private final UserRepository userRepository;
     private final ChatMapper chatMapper;
+
+//    TODO: accept the chat request and create the session-id and send it
+//    TODO: add a check for the payment as the number of active chats of more than *3 300rs every request
 
     @Override
     public ChatSessionDto createChatSession(UUID consultationRequestId, UUID astrologerId) {
@@ -92,6 +96,11 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatMessageDto saveMessage(UUID chatSessionId, UUID senderId, String content, String imageUrl) {
+        return saveMessage(chatSessionId, senderId, content, imageUrl, MessageType.CHAT);
+    }
+
+    @Override
+    public ChatMessageDto saveMessage(UUID chatSessionId, UUID senderId, String content, String imageUrl, MessageType type) {
         ChatMessage message = ChatMessage.builder()
                 .id(UUID.randomUUID())
                 .chatSessionId(chatSessionId)
@@ -99,6 +108,7 @@ public class ChatServiceImpl implements ChatService {
                 .content(content)
                 .imageUrl(imageUrl)
                 .timestamp(LocalDateTime.now())
+                .type(type)
                 .build();
 
         ChatMessage savedMessage = chatMessageRepository.save(message);

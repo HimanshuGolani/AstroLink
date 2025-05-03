@@ -1,5 +1,6 @@
 package com.astrolink.AstroLink.dto.response;
 
+import com.astrolink.AstroLink.entity.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,4 +20,5 @@ public class ChatMessageDto {
     private String content;
     private String imageUrl;
     private LocalDateTime timestamp;
+    private MessageType type = MessageType.CHAT; // Default type
 }

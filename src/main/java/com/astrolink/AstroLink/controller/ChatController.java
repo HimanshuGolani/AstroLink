@@ -9,12 +9,13 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.UUID;
-
 
 @Controller
 @RequiredArgsConstructor
@@ -24,27 +25,14 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
 
     /**
-     * WebSocket endpoint to send messages to public topic
-     */
-    @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public ChatMessageDto sendPublicMessage(@Payload ChatMessageDto chatMessageDto) {
-        return chatService.saveMessage(
-                chatMessageDto.getChatSessionId(),
-                chatMessageDto.getSenderId(),
-                chatMessageDto.getContent(),
-                chatMessageDto.getImageUrl()
-        );
-    }
-
-    /**
      * WebSocket endpoint to send messages to a specific chat session
      */
     @MessageMapping("/chat.sendMessage/{chatSessionId}")
     @SendTo("/topic/chat/{chatSessionId}")
-    public ChatMessageDto sendSessionMessage(
+    public ChatMessageDto sendMessage(
             @DestinationVariable UUID chatSessionId,
-            @Payload ChatMessageDto chatMessageDto) {
+            @Payload ChatMessageDto chatMessageDto
+    ) {
         return chatService.saveMessage(
                 chatSessionId,
                 chatMessageDto.getSenderId(),
@@ -54,13 +42,36 @@ public class ChatController {
     }
 
     /**
+     * WebSocket endpoint to join a chat session
+     */
+    @MessageMapping("/chat.addUser/{chatSessionId}")
+    @SendTo("/topic/chat/{chatSessionId}")
+    public ChatMessageDto addUser(
+            @DestinationVariable UUID chatSessionId,
+            @Payload ChatMessageDto chatMessageDto,
+            SimpMessageHeaderAccessor headerAccessor
+    ) {
+        // Add user details in web socket session
+        headerAccessor.getSessionAttributes().put("userId", chatMessageDto.getSenderId());
+        headerAccessor.getSessionAttributes().put("chatSessionId", chatSessionId);
+
+        // Save and return a join message
+        return chatService.saveMessage(
+                chatSessionId,
+                chatMessageDto.getSenderId(),
+                "User has joined the chat",
+                null
+        );
+    }
+
+    /**
      * WebSocket endpoint to send private messages to a specific user
      */
     @MessageMapping("/chat.private/{recipientId}")
     public void sendPrivateMessage(
             @DestinationVariable UUID recipientId,
-            @Payload ChatMessageDto chatMessageDto) {
-
+            @Payload ChatMessageDto chatMessageDto
+    ) {
         ChatMessageDto savedMessage = chatService.saveMessage(
                 chatMessageDto.getChatSessionId(),
                 chatMessageDto.getSenderId(),
@@ -81,7 +92,8 @@ public class ChatController {
     @PostMapping("/api/v1/chat/start/{consultationRequestId}/astrologer/{astrologerId}")
     public ResponseEntity<ChatSessionDto> startChat(
             @PathVariable UUID consultationRequestId,
-            @PathVariable UUID astrologerId) {
+            @PathVariable UUID astrologerId
+    ) {
         ChatSessionDto sessionDto = chatService.createChatSession(consultationRequestId, astrologerId);
         return ResponseEntity.ok(sessionDto);
     }
