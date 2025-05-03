@@ -29,6 +29,10 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,22 +43,21 @@ public class UserManagementSecurityConfig {
     private final UserDetailsService userDetailsService;
     private final RsaConfigurationProperties rsaConfigurationProperties;
 
-    // This filter chain specifically for WebSocket endpoints (higher priority)
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain websocketSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .securityMatcher("/ws/**", "/ws-chat/**", "/topic/**", "/app/**", "/queue/**")
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
-    }
 
     // Main security filter chain for other endpoints
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(
+                        cors -> cors.configurationSource(request -> {
+                            CorsConfiguration configuration = new CorsConfiguration();
+                            configuration.setAllowedOrigins(List.of("*"));
+                            configuration.setAllowedMethods(List.of("*"));
+                            configuration.setAllowedHeaders(List.of("*"));
+                            return configuration;
+                        })
+                )
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -68,7 +71,9 @@ public class UserManagementSecurityConfig {
                         .requestMatchers("/api/v1/payment/**").authenticated()
                         .requestMatchers("/api/v1/chat/**").authenticated()
                         .requestMatchers("/api/v1/users/**").authenticated()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/ws/**", "/ws-chat/**", "/topic/**", "/app/**", "/queue/**").permitAll()
+//                                .requestMatchers("*").permitAll()
+                                .anyRequest().authenticated()
                 )
 //                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

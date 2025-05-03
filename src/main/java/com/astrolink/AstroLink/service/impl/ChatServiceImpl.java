@@ -1,14 +1,15 @@
 package com.astrolink.AstroLink.service.impl;
 
 import com.astrolink.AstroLink.dto.mapper.ChatMapper;
-import com.astrolink.AstroLink.dto.response.ChatMessageDto;
+import com.astrolink.AstroLink.dto.request.PaymentRequestDto;
+import com.astrolink.AstroLink.dto.response.ChatInitiationResponse;
 import com.astrolink.AstroLink.dto.response.ChatSessionDto;
-import com.astrolink.AstroLink.entity.ChatMessage;
+import com.astrolink.AstroLink.dto.response.PaymentStatusResponseDto;
 import com.astrolink.AstroLink.entity.ChatSession;
 import com.astrolink.AstroLink.entity.ConsultationRequest;
-import com.astrolink.AstroLink.entity.MessageType;
-import com.astrolink.AstroLink.exception.custom.DataNotFoundException;
-import com.astrolink.AstroLink.repository.ChatMessageRepository;
+import com.astrolink.AstroLink.entity.PaymentStatus;
+import com.astrolink.AstroLink.entity.User;
+import com.astrolink.AstroLink.exception.custom.UserBlockedException;
 import com.astrolink.AstroLink.repository.ChatSessionRepository;
 import com.astrolink.AstroLink.repository.ConsultationRequestRepository;
 import com.astrolink.AstroLink.repository.UserRepository;
@@ -16,110 +17,75 @@ import com.astrolink.AstroLink.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
     private final ChatSessionRepository chatSessionRepository;
-    private final ChatMessageRepository chatMessageRepository;
     private final ConsultationRequestRepository consultationRequestRepository;
     private final UserRepository userRepository;
+    private final StripeServiceImpl stripeService;
     private final ChatMapper chatMapper;
 
-//    TODO: accept the chat request and create the session-id and send it
-//    TODO: add a check for the payment as the number of active chats of more than *3 300rs every request
+    private int findChatSessionById(UUID consultationId){
+        return chatSessionRepository
+                .findByConsultationsRequestId(consultationId).size();
+    }
+    private User findUserById(UUID userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    private ConsultationRequest findConsultationRequestById(UUID consultationRequestId){
+        return consultationRequestRepository.findById(consultationRequestId)
+                .orElseThrow(() -> new RuntimeException("Consultation Request not found"));
+    }
 
-    @Override
-    public ChatSessionDto createChatSession(UUID consultationRequestId, UUID astrologerId) {
-        Optional<ChatSession> existingSession = chatSessionRepository.findByConsultationRequestId(consultationRequestId);
-        if (existingSession.isPresent()) {
-            return chatMapper.toDto(existingSession.get());
+    public ChatInitiationResponse createChat(UUID astrologerId, UUID consultationRequestId) {
+        try {
+        User astrologer = findUserById(astrologerId);
+        ConsultationRequest consultationRequest = findConsultationRequestById(consultationRequestId);
+        User consultationRequestCreator = findUserById(consultationRequest.getUserId());
+        if (consultationRequestCreator.getBlockedAstrologerIds().contains(astrologerId)) {
+            throw new UserBlockedException("Astrologer is blocked by the user, cannot accept this request");
+        }
+        int countOfConsultationRequests = findChatSessionById(consultationRequestId);
+        ChatInitiationResponse response = new ChatInitiationResponse();
+        boolean paymentRequired = (countOfConsultationRequests >= 4 && countOfConsultationRequests % 4 == 0) && consultationRequest.getPaymentStatus() != PaymentStatus.PAID;
+        if (paymentRequired) {
+            PaymentRequestDto paymentRequest = new PaymentRequestDto();
+            paymentRequest.setAmount(300L);
+            paymentRequest.setName("More than free chat requests");
+            PaymentStatusResponseDto paymentStatusResponse = stripeService.checkoutProducts(paymentRequest);
+            response.setPaymentStatus(paymentStatusResponse);
+        }
+        ChatSession chatSession = new ChatSession();
+        chatSession.setId(UUID.randomUUID());
+        chatSession.setUserId(consultationRequestCreator.getId());
+        chatSession.setAstrologerId(astrologerId);
+        chatSession.setConsultationRequestId(consultationRequestId);
+        chatSessionRepository.save(chatSession);
+        ChatSessionDto chatSessionDto = chatMapper.toDto(chatSession);
+
+        consultationRequestCreator.getActiveChatSessionIds().add(chatSession.getId());
+        userRepository.save(consultationRequestCreator);
+        astrologer.getActiveChatSessionIds().add(chatSession.getId());
+        userRepository.save(astrologer);
+
+        response.setChatSession(chatSessionDto);
+
+        return response;
+    }
+
+         catch (UserBlockedException ex) {
+            throw ex;
+        } catch (RuntimeException ex) {
+            throw new RuntimeException("Failed to create chat: " + ex.getMessage(), ex);
+        } catch (Exception ex) {
+            throw new RuntimeException("Unexpected error while creating chat", ex);
         }
 
-        ConsultationRequest consultationRequest = consultationRequestRepository.findById(consultationRequestId)
-                .orElseThrow(() -> new DataNotFoundException("ConsultationRequest not found"));
-
-        UUID userId = consultationRequest.getUserId();
-
-        ChatSession chatSession = ChatSession.builder()
-                .id(UUID.randomUUID())
-                .consultationRequestId(consultationRequestId)
-                .userId(userId)
-                .astrologerId(astrologerId)
-                .startedAt(LocalDateTime.now())
-                .build();
-
-        ChatSession savedSession = chatSessionRepository.save(chatSession);
-
-        // Update both users' activeChatSessionIds and acceptedConsultations
-        userRepository.findById(astrologerId).ifPresent(astrologer -> {
-            astrologer.getAcceptedConsultationIds().add(consultationRequestId);
-            astrologer.getActiveChatSessionIds().add(savedSession.getId());
-            userRepository.save(astrologer);
-        });
-
-        userRepository.findById(userId).ifPresent(user -> {
-            user.getActiveChatSessionIds().add(savedSession.getId());
-            userRepository.save(user);
-        });
-
-        return chatMapper.toDto(savedSession);
     }
 
-    @Override
-    public void deleteChatSession(UUID consultationRequestId) {
-        chatSessionRepository.findByConsultationRequestId(consultationRequestId).ifPresent(session -> {
-            // Delete all messages related to this session
-            chatMessageRepository.deleteByChatSessionId(session.getId());
-
-            // Remove session ID from both users' activeChatSessionIds
-            UUID astrologerId = session.getAstrologerId();
-            UUID userId = session.getUserId();
-
-            userRepository.findById(astrologerId).ifPresent(astrologer -> {
-                astrologer.getActiveChatSessionIds().remove(session.getId());
-                userRepository.save(astrologer);
-            });
-
-            userRepository.findById(userId).ifPresent(user -> {
-                user.getActiveChatSessionIds().remove(session.getId());
-                userRepository.save(user);
-            });
-
-            chatSessionRepository.delete(session);
-        });
-    }
-
-    @Override
-    public ChatMessageDto saveMessage(UUID chatSessionId, UUID senderId, String content, String imageUrl) {
-        return saveMessage(chatSessionId, senderId, content, imageUrl, MessageType.CHAT);
-    }
-
-    @Override
-    public ChatMessageDto saveMessage(UUID chatSessionId, UUID senderId, String content, String imageUrl, MessageType type) {
-        ChatMessage message = ChatMessage.builder()
-                .id(UUID.randomUUID())
-                .chatSessionId(chatSessionId)
-                .senderId(senderId)
-                .content(content)
-                .imageUrl(imageUrl)
-                .timestamp(LocalDateTime.now())
-                .type(type)
-                .build();
-
-        ChatMessage savedMessage = chatMessageRepository.save(message);
-        return chatMapper.toDto(savedMessage);
-    }
-
-    @Override
-    public List<ChatMessageDto> getMessages(UUID chatSessionId) {
-        List<ChatMessage> messages = chatMessageRepository.findByChatSessionId(chatSessionId);
-        return messages.stream()
-                .map(chatMapper::toDto)
-                .collect(Collectors.toList());
-    }
 }

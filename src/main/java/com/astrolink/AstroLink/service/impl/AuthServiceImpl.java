@@ -5,6 +5,7 @@ import com.astrolink.AstroLink.dto.request.RegistrationRequest;
 import com.astrolink.AstroLink.dto.response.LoginResponseDto;
 import com.astrolink.AstroLink.entity.Role;
 import com.astrolink.AstroLink.entity.User;
+import com.astrolink.AstroLink.exception.custom.DataNotFoundException;
 import com.astrolink.AstroLink.exception.custom.EmailAlreadyExistsException;
 import com.astrolink.AstroLink.repository.UserRepository;
 import com.astrolink.AstroLink.service.AuthService;
@@ -80,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
 
             // Get the authenticated user
             User user = userRepository.findByEmail(loginRequest.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
 
             // Create login response
             LoginResponseDto loginResponse = new LoginResponseDto(

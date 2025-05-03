@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Document(collection = "chat_messages")
@@ -21,7 +23,7 @@ public class ChatMessage {
     private UUID chatSessionId;
     private UUID senderId;
     private String content;
-    private String imageUrl;
+    private List<String> imageUrl = new ArrayList<>();
     private LocalDateTime timestamp;
     private MessageType type = MessageType.CHAT; // Default type
 }

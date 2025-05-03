@@ -5,9 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Document(collection = "chat_sessions")
@@ -21,6 +24,7 @@ public class ChatSession {
     private UUID consultationRequestId;
     private UUID userId;
     private UUID astrologerId;
-    private LocalDateTime startedAt;
-    private LocalDateTime endedAt;
+    @DBRef
+    List<ChatMessage> messages = new ArrayList<>();
+    private LocalDateTime lastActive;
 }
