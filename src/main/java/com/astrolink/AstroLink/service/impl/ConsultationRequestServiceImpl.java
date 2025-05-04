@@ -3,10 +3,7 @@ package com.astrolink.AstroLink.service.impl;
 import com.astrolink.AstroLink.dto.mapper.ConsultationRequestMapper;
 import com.astrolink.AstroLink.dto.request.ConsultationRequestCreateDto;
 import com.astrolink.AstroLink.dto.response.ConsultationResponseDto;
-import com.astrolink.AstroLink.entity.ChatSession;
-import com.astrolink.AstroLink.entity.ConsultationRequest;
-import com.astrolink.AstroLink.entity.PaymentStatus;
-import com.astrolink.AstroLink.entity.User;
+import com.astrolink.AstroLink.entity.*;
 import com.astrolink.AstroLink.exception.custom.DataNotFoundException;
 import com.astrolink.AstroLink.exception.custom.RequestNotAcceptingException;
 import com.astrolink.AstroLink.exception.custom.UserBlockedException;
@@ -163,6 +160,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         // Update the request to be closed (no longer open for all)
         request.setOpenForAll(false);
         request.getAcceptingAstrologersId().clear();
+        request.setRequestStatus(RequestStatus.DONE);
         consultationRequestRepository.save(request);
 
         // Save updated chat sessions

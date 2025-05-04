@@ -26,6 +26,7 @@ public class ConsultationRequest implements Comparable<ConsultationRequest> {
     private String birthTime;
     private String birthPlace;
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    private RequestStatus requestStatus = RequestStatus.PROGRESS;
 
     @DBRef
     private List<User> toAcceptAstrologerIds = new ArrayList<>();

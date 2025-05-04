@@ -69,6 +69,8 @@ public class UserManagementSecurityConfig {
                         .requestMatchers("/api/v1/payment/**").authenticated()
                         .requestMatchers("/api/v1/chat/**").authenticated()
                         .requestMatchers("/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/request/**").authenticated()
+                        .requestMatchers("/api/v1/user/**").authenticated()
                         .requestMatchers("/ws/**", "/ws-chat/**", "/topic/**", "/app/**", "/queue/**").permitAll()
                                 .anyRequest().authenticated()
                 )
