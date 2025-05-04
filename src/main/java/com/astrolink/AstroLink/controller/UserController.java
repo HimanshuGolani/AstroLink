@@ -1,6 +1,7 @@
 package com.astrolink.AstroLink.controller;
 
 import com.astrolink.AstroLink.dto.response.AcceptingAstrologersRequestDto;
+import com.astrolink.AstroLink.dto.response.DashboardDto;
 import com.astrolink.AstroLink.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +20,16 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Get all accepted consultation requests by astrologer")
-    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @GetMapping("/accepted-consultations/{userId}")
     public ResponseEntity<List<AcceptingAstrologersRequestDto>> getAcceptedConsultations(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.getAllPendingAcceptationRequests(userId));
     }
 
     @Operation(summary = "Get dashboard data for the user or astrologer")
-    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/dashboard/{userId}")
-    public ResponseEntity<Object> getDashboardData(@PathVariable UUID userId) {
+    public ResponseEntity<DashboardDto> getDashboardData(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.getDashboardData(userId));
     }
 }

@@ -21,7 +21,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/start")
-    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ASTROLOGER')")
     @Operation(summary = "Start a new chat (The user will accept the request)", description = "Creates a chat between user and astrologer using a consultation request.")
     public ResponseEntity<ChatInitiationResponse> createChat(
             @RequestParam @Parameter(description = "Astrologer UUID") UUID astrologerId,
@@ -32,7 +32,7 @@ public class ChatController {
     }
 
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ASTROLOGER')")
     @Operation(summary = "Get all small chats for a user", description = "Returns a list of basic chat information for the user.")
     public ResponseEntity<?> getAllSmallChats(
             @PathVariable @Parameter(description = "User UUID") UUID userId
@@ -41,7 +41,7 @@ public class ChatController {
     }
 
     @GetMapping("/{userId}/{chatId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ASTROLOGER')")
     @Operation(summary = "Get a specific chat session", description = "Fetches a chat session by userId and chatId, including messages.")
     public ResponseEntity<ChatDto> getChat(
             @PathVariable @Parameter(description = "User UUID") UUID userId,

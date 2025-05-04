@@ -36,7 +36,7 @@ public class ConsultationRequestController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "400", description = "Invalid request data")
     })
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<ConsultationResponseDto> createConsultationRequest(
             @Parameter(description = "ID of the user creating the request") @PathVariable UUID userId,
             @Parameter(description = "Request details") @RequestBody ConsultationRequestCreateDto requestDto) {
@@ -53,7 +53,7 @@ public class ConsultationRequestController {
             @ApiResponse(responseCode = "404", description = "Request or astrologer not found"),
             @ApiResponse(responseCode = "400", description = "Cannot accept request (blocked or already at capacity)")
     })
-    @PreAuthorize("hasAuthority('ASTROLOGER')")
+    @PreAuthorize("hasAuthority('ROLE_ASTROLOGER')")
     public ResponseEntity<ConsultationResponseDto> acceptConsultationRequest(
             @Parameter(description = "ID of the request to accept") @PathVariable UUID requestId,
             @Parameter(description = "ID of the astrologer accepting the request") @PathVariable UUID astrologerId) {
@@ -66,7 +66,7 @@ public class ConsultationRequestController {
             description = "Retrieves all consultation requests that are still open for astrologers to accept")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved available requests",
             content = @Content(schema = @Schema(implementation = ConsultationResponseDto.class)))
-    @PreAuthorize("hasAuthority('ASTROLOGER')")
+    @PreAuthorize("hasAuthority('ROLE_ASTROLOGER')")
     public ResponseEntity<List<ConsultationResponseDto>> getAllAvailableRequests() {
         List<ConsultationResponseDto> availableRequests = consultationRequestService.getAllAvailableRequests();
         return ResponseEntity.ok(availableRequests);
@@ -80,7 +80,7 @@ public class ConsultationRequestController {
                     content = @Content(schema = @Schema(implementation = ConsultationResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<List<ConsultationResponseDto>> getUserRequests(
             @Parameter(description = "ID of the user") @PathVariable UUID userId) {
         List<ConsultationResponseDto> userRequests = consultationRequestService.getUserRequests(userId);
@@ -94,7 +94,7 @@ public class ConsultationRequestController {
             @ApiResponse(responseCode = "204", description = "Request closed successfully"),
             @ApiResponse(responseCode = "404", description = "Request not found")
     })
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Void> closeRequest(
             @Parameter(description = "ID of the request to close") @PathVariable UUID requestId) {
         consultationRequestService.closeRequest(requestId);
