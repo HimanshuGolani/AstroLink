@@ -28,6 +28,8 @@ public class ConsultationRequest implements Comparable<ConsultationRequest> {
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     @DBRef
+    private List<User> toAcceptAstrologerIds = new ArrayList<>();
+    @DBRef
     private List<User> acceptingAstrologersId = new ArrayList<>();
     @Setter
     private boolean openForAll;

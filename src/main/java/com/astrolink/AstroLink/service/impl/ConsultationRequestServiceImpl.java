@@ -2,7 +2,7 @@ package com.astrolink.AstroLink.service.impl;
 
 import com.astrolink.AstroLink.dto.mapper.ConsultationRequestMapper;
 import com.astrolink.AstroLink.dto.request.ConsultationRequestCreateDto;
-import com.astrolink.AstroLink.dto.response.ConsultationRequestDto;
+import com.astrolink.AstroLink.dto.response.ConsultationResponseDto;
 import com.astrolink.AstroLink.entity.ChatSession;
 import com.astrolink.AstroLink.entity.ConsultationRequest;
 import com.astrolink.AstroLink.entity.PaymentStatus;
@@ -37,7 +37,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
     @Override
     @Transactional
-    public ConsultationRequestDto createConsultationRequest(UUID userId, ConsultationRequestCreateDto requestDto) {
+    public ConsultationResponseDto createConsultationRequest(UUID userId, ConsultationRequestCreateDto requestDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
@@ -60,7 +60,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
     @Override
     @Transactional
-    public ConsultationRequestDto acceptConsultationRequest(UUID requestId, UUID astrologerId) {
+    public ConsultationResponseDto acceptConsultationRequest(UUID requestId, UUID astrologerId) {
         ConsultationRequest request = consultationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new DataNotFoundException("Consultation request not found with ID: " + requestId));
 
@@ -81,12 +81,8 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
 
         // Add astrologer to accepting astrologers
-        request.getAcceptingAstrologersId().add(astrologer);
+        request.getToAcceptAstrologerIds().add(astrologer);
 
-        // If we've reached the maximum number of astrologers, update isOpenForAll
-        if (request.getAcceptingAstrologersId().size() >= 3) {
-            request.setOpenForAll(false);
-        }
 
         ConsultationRequest updatedRequest = consultationRequestRepository.save(request);
 
@@ -116,7 +112,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
-    public List<ConsultationRequestDto> getAllAvailableRequests() {
+    public List<ConsultationResponseDto> getAllAvailableRequests() {
         List<ConsultationRequest> allRequests = consultationRequestRepository.findAll();
 
         // Filter requests that are still open for acceptance
@@ -128,7 +124,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
-    public List<ConsultationRequestDto> getUserRequests(UUID userId) {
+    public List<ConsultationResponseDto> getUserRequests(UUID userId) {
         // Verify user exists
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException("User not found with ID: " + userId);

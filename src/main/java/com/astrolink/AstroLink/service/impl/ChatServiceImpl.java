@@ -2,21 +2,23 @@ package com.astrolink.AstroLink.service.impl;
 
 import com.astrolink.AstroLink.dto.mapper.ChatMapper;
 import com.astrolink.AstroLink.dto.request.PaymentRequestDto;
-import com.astrolink.AstroLink.dto.response.ChatInitiationResponse;
-import com.astrolink.AstroLink.dto.response.ChatSessionDto;
-import com.astrolink.AstroLink.dto.response.PaymentStatusResponseDto;
+import com.astrolink.AstroLink.dto.response.*;
 import com.astrolink.AstroLink.entity.ChatSession;
 import com.astrolink.AstroLink.entity.ConsultationRequest;
 import com.astrolink.AstroLink.entity.PaymentStatus;
 import com.astrolink.AstroLink.entity.User;
 import com.astrolink.AstroLink.exception.custom.UserBlockedException;
 import com.astrolink.AstroLink.repository.ChatSessionRepository;
+import com.astrolink.AstroLink.repository.ConsultationRequestRepository;
 import com.astrolink.AstroLink.repository.UserRepository;
 import com.astrolink.AstroLink.service.ChatService;
 import com.astrolink.AstroLink.util.FinderClassUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -28,8 +30,10 @@ public class ChatServiceImpl implements ChatService {
     private final StripeServiceImpl stripeService;
     private final ChatMapper chatMapper;
     private final FinderClassUtil finderClassUtil;
+    private final ConsultationRequestRepository consultationRequestRepository;
 
 
+    @Transactional
     public ChatInitiationResponse createChat(UUID astrologerId, UUID consultationRequestId) {
         try {
         User astrologer = finderClassUtil.findUserById(astrologerId);
@@ -61,6 +65,9 @@ public class ChatServiceImpl implements ChatService {
         astrologer.getActiveChatSessionIds().add(chatSession.getId());
         userRepository.save(astrologer);
 
+        consultationRequest.getToAcceptAstrologerIds().remove(astrologer);
+        consultationRequest.getAcceptingAstrologersId().add(astrologer);
+        consultationRequestRepository.save(consultationRequest);
         response.setChatSession(chatSessionDto);
 
         return response;
@@ -75,5 +82,32 @@ public class ChatServiceImpl implements ChatService {
         }
 
     }
+
+    @Override
+    public List<SmallChatsResponseDto> getAllSmallChats(UUID userId) {
+        User user = finderClassUtil.findUserById(userId);
+            return  user.getConsultationRequestIds()
+                        .stream()
+                        .map(chatSessionRepository::findByConsultationsRequestId)
+                        .filter(Objects::nonNull)
+                        .flatMap(List::stream)
+                        .map(chatMapper::toSmallChat)
+                        .toList();
+    }
+
+    @Override
+    public ChatDto getChatById(UUID userId, UUID chatId) {
+        ChatSession chatSession = chatSessionRepository.findById(chatId)
+                .orElseThrow(() -> new RuntimeException("Chat session not found"));
+
+        // Ensure the user is a participant in the chat
+        if (!chatSession.getUserId().equals(userId) && !chatSession.getAstrologerId().equals(userId)) {
+            throw new RuntimeException("User is not authorized to view this chat");
+        }
+
+        return chatMapper.toChatDto(chatSession);
+    }
+
+
 
 }

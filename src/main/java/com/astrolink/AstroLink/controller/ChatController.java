@@ -1,11 +1,14 @@
 package com.astrolink.AstroLink.controller;
 
+import com.astrolink.AstroLink.dto.response.ChatDto;
 import com.astrolink.AstroLink.dto.response.ChatInitiationResponse;
-import com.astrolink.AstroLink.dto.response.ChatSessionDto;
 import com.astrolink.AstroLink.service.ChatService;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -17,25 +20,34 @@ public class ChatController {
 
     private final ChatService chatService;
 
-//     create room
-@PostMapping("/start")
-public ResponseEntity<ChatInitiationResponse> createChat(
-        @RequestParam UUID astrologerId,
-        @RequestParam UUID consultationRequestId
-) {
-    ChatInitiationResponse chatSession = chatService.createChat(astrologerId, consultationRequestId);
-    return ResponseEntity.ok(chatSession);
-}
-//    get list of chat of user small just chatId and name of chat
+    @PostMapping("/start")
+    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @Operation(summary = "Start a new chat (The user will accept the request)", description = "Creates a chat between user and astrologer using a consultation request.")
+    public ResponseEntity<ChatInitiationResponse> createChat(
+            @RequestParam @Parameter(description = "Astrologer UUID") UUID astrologerId,
+            @RequestParam @Parameter(description = "Consultation Request UUID") UUID consultationRequestId
+    ) {
+        ChatInitiationResponse chatSession = chatService.createChat(astrologerId, consultationRequestId);
+        return ResponseEntity.ok(chatSession);
+    }
+
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getAllSmallChats(@PathVariable UUID userId){
-        return null;
+    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @Operation(summary = "Get all small chats for a user", description = "Returns a list of basic chat information for the user.")
+    public ResponseEntity<?> getAllSmallChats(
+            @PathVariable @Parameter(description = "User UUID") UUID userId
+    ) {
+        return new ResponseEntity<>(chatService.getAllSmallChats(userId), HttpStatus.OK);
     }
-//    get a chat perticular chat by the id of it including messages
+
     @GetMapping("/{userId}/{chatId}")
-    public ResponseEntity<?> getChat(@PathVariable UUID userId, @PathVariable UUID chatId){
-         return null;
+    @PreAuthorize("hasAnyAuthority('USER', 'ASTROLOGER')")
+    @Operation(summary = "Get a specific chat session", description = "Fetches a chat session by userId and chatId, including messages.")
+    public ResponseEntity<ChatDto> getChat(
+            @PathVariable @Parameter(description = "User UUID") UUID userId,
+            @PathVariable @Parameter(description = "Chat Session UUID") UUID chatId
+    ) {
+        ChatDto chatDto = chatService.getChatById(userId, chatId);
+        return ResponseEntity.ok(chatDto);
     }
-
-
 }

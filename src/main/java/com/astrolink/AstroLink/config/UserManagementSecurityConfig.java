@@ -43,8 +43,6 @@ public class UserManagementSecurityConfig {
     private final UserDetailsService userDetailsService;
     private final RsaConfigurationProperties rsaConfigurationProperties;
 
-
-    // Main security filter chain for other endpoints
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -72,10 +70,8 @@ public class UserManagementSecurityConfig {
                         .requestMatchers("/api/v1/chat/**").authenticated()
                         .requestMatchers("/api/v1/users/**").authenticated()
                         .requestMatchers("/ws/**", "/ws-chat/**", "/topic/**", "/app/**", "/queue/**").permitAll()
-//                                .requestMatchers("*").permitAll()
                                 .anyRequest().authenticated()
                 )
-//                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(
                         oauth -> oauth.jwt(

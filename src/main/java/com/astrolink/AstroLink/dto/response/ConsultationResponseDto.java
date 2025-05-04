@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConsultationRequestDto {
+public class ConsultationResponseDto {
     private UUID id;
     private String title;
     private String birthDate;

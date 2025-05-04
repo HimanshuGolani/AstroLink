@@ -10,15 +10,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TokenService {
+
     private final JwtEncoder jwtEncoder;
 
 
-    public String generateToken(Authentication authentication){
+    public String generateToken(Authentication authentication, UUID userId){
         Instant now = Instant.now();
 
         String roles = authentication.getAuthorities()
@@ -32,6 +34,7 @@ public class TokenService {
                 .issuedAt(now)
                 .subject(authentication.getName())
                 .claim("scope",roles)
+                .claim("userId", userId.toString())
                 .expiresAt(now.plus(1, ChronoUnit.DAYS))
                 .build();
 

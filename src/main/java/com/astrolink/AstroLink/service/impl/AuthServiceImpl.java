@@ -9,6 +9,7 @@ import com.astrolink.AstroLink.exception.custom.DataNotFoundException;
 import com.astrolink.AstroLink.exception.custom.EmailAlreadyExistsException;
 import com.astrolink.AstroLink.repository.UserRepository;
 import com.astrolink.AstroLink.service.AuthService;
+import com.astrolink.AstroLink.util.FinderClassUtil;
 import com.astrolink.AstroLink.util.RoleMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +71,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, Object> login(LoginRequestDto loginRequest) {
+        // Get the authenticated user
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
         try {
+
+            System.out.println(user.toString());
+
             // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -79,18 +87,14 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
 
-            // Get the authenticated user
-            User user = userRepository.findByEmail(loginRequest.getEmail())
-                    .orElseThrow(() -> new DataNotFoundException("User not found"));
 
             // Create login response
             LoginResponseDto loginResponse = new LoginResponseDto(
-                    user.getId(),
                     user.getFirstName() + " " + user.getLastName()
             );
 
             // Generate JWT token
-            String token = tokenService.generateToken(authentication);
+            String token = tokenService.generateToken(authentication,user.getId());
 
             // Create response map
             Map<String, Object> response = new HashMap<>();
@@ -98,7 +102,8 @@ public class AuthServiceImpl implements AuthService {
             response.put("token", token);
 
             return response;
-        } catch (BadCredentialsException e) {
+        }
+        catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid email or password");
         } catch (DisabledException e) {
             throw new DisabledException("Account is disabled");

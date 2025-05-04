@@ -9,7 +9,9 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponseDto {
-    private String name;
+public class AcceptingAstrologersRequestDto {
+    private UUID userId;
+    private UUID astrologerId;
+    private int astrologerRating;
+    private ConsultationResponseDto consultationRequest;
 }
-

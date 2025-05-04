@@ -1,7 +1,7 @@
 package com.astrolink.AstroLink.controller;
 
 import com.astrolink.AstroLink.dto.request.ConsultationRequestCreateDto;
-import com.astrolink.AstroLink.dto.response.ConsultationRequestDto;
+import com.astrolink.AstroLink.dto.response.ConsultationResponseDto;
 import com.astrolink.AstroLink.service.ConsultationRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,15 +32,15 @@ public class ConsultationRequestController {
             description = "Creates a new consultation request for the specified user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Request created successfully",
-                    content = @Content(schema = @Schema(implementation = ConsultationRequestDto.class))),
+                    content = @Content(schema = @Schema(implementation = ConsultationResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "400", description = "Invalid request data")
     })
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<ConsultationRequestDto> createConsultationRequest(
+    public ResponseEntity<ConsultationResponseDto> createConsultationRequest(
             @Parameter(description = "ID of the user creating the request") @PathVariable UUID userId,
             @Parameter(description = "Request details") @RequestBody ConsultationRequestCreateDto requestDto) {
-        ConsultationRequestDto createdRequest = consultationRequestService.createConsultationRequest(userId, requestDto);
+        ConsultationResponseDto createdRequest = consultationRequestService.createConsultationRequest(userId, requestDto);
         return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
     }
 
@@ -49,15 +49,15 @@ public class ConsultationRequestController {
             description = "Astrologer accepts a consultation request if they're not blocked by the user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Request accepted successfully",
-                    content = @Content(schema = @Schema(implementation = ConsultationRequestDto.class))),
+                    content = @Content(schema = @Schema(implementation = ConsultationResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "Request or astrologer not found"),
             @ApiResponse(responseCode = "400", description = "Cannot accept request (blocked or already at capacity)")
     })
     @PreAuthorize("ASTROLOGER")
-    public ResponseEntity<ConsultationRequestDto> acceptConsultationRequest(
+    public ResponseEntity<ConsultationResponseDto> acceptConsultationRequest(
             @Parameter(description = "ID of the request to accept") @PathVariable UUID requestId,
             @Parameter(description = "ID of the astrologer accepting the request") @PathVariable UUID astrologerId) {
-        ConsultationRequestDto acceptedRequest = consultationRequestService.acceptConsultationRequest(requestId, astrologerId);
+        ConsultationResponseDto acceptedRequest = consultationRequestService.acceptConsultationRequest(requestId, astrologerId);
         return ResponseEntity.ok(acceptedRequest);
     }
 
@@ -65,10 +65,10 @@ public class ConsultationRequestController {
     @Operation(summary = "Get all available consultation requests",
             description = "Retrieves all consultation requests that are still open for astrologers to accept")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved available requests",
-            content = @Content(schema = @Schema(implementation = ConsultationRequestDto.class)))
+            content = @Content(schema = @Schema(implementation = ConsultationResponseDto.class)))
     @PreAuthorize("ASTROLOGER")
-    public ResponseEntity<List<ConsultationRequestDto>> getAllAvailableRequests() {
-        List<ConsultationRequestDto> availableRequests = consultationRequestService.getAllAvailableRequests();
+    public ResponseEntity<List<ConsultationResponseDto>> getAllAvailableRequests() {
+        List<ConsultationResponseDto> availableRequests = consultationRequestService.getAllAvailableRequests();
         return ResponseEntity.ok(availableRequests);
     }
 
@@ -77,13 +77,13 @@ public class ConsultationRequestController {
             description = "Retrieves all consultation requests created by a specific user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved user's requests",
-                    content = @Content(schema = @Schema(implementation = ConsultationRequestDto.class))),
+                    content = @Content(schema = @Schema(implementation = ConsultationResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PreAuthorize("USER")
-    public ResponseEntity<List<ConsultationRequestDto>> getUserRequests(
+    public ResponseEntity<List<ConsultationResponseDto>> getUserRequests(
             @Parameter(description = "ID of the user") @PathVariable UUID userId) {
-        List<ConsultationRequestDto> userRequests = consultationRequestService.getUserRequests(userId);
+        List<ConsultationResponseDto> userRequests = consultationRequestService.getUserRequests(userId);
         return ResponseEntity.ok(userRequests);
     }
 
