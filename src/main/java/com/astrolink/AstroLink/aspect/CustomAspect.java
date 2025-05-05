@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @Slf4j
-public class LoggingAspect {
+public class CustomAspect {
 
     @Pointcut("execution(* com.astrolink.AstroLink..*.*(..))")
     public void applicationPackagePointcut() {
@@ -37,4 +37,10 @@ public class LoggingAspect {
                 joinPoint.getSignature().getName(),
                 exception.getMessage(), exception);
     }
+
+    @AfterReturning(pointcut = "applicationPackagePointcut()", returning = "result")
+    public void auditAction(JoinPoint joinPoint, Object result) {
+        log.debug("Method {} {} {}" , joinPoint.getSignature() , " returned: {}" , result);
+    }
+
 }
