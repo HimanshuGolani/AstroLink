@@ -4,16 +4,12 @@ import com.astrolink.AstroLink.dto.mapper.ConsultationRequestMapper;
 import com.astrolink.AstroLink.dto.request.ConsultationRequestCreateDto;
 import com.astrolink.AstroLink.dto.response.ConsultationResponseDto;
 import com.astrolink.AstroLink.entity.*;
-import com.astrolink.AstroLink.exception.custom.DataNotFoundException;
-import com.astrolink.AstroLink.exception.custom.RequestNotAcceptingException;
-import com.astrolink.AstroLink.exception.custom.UserBlockedException;
-import com.astrolink.AstroLink.exception.custom.UserNotFoundException;
+import com.astrolink.AstroLink.exception.custom.*;
 import com.astrolink.AstroLink.repository.ChatSessionRepository;
 import com.astrolink.AstroLink.repository.ConsultationRequestRepository;
 import com.astrolink.AstroLink.repository.UserRepository;
 import com.astrolink.AstroLink.service.ConsultationRequestService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +34,9 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
+
         ConsultationRequest consultationRequest = consultationRequestMapper.toEntity(requestDto);
+
         consultationRequest.setId(UUID.randomUUID());
         consultationRequest.setUserId(userId);
         consultationRequest.setCreatedAt(LocalDateTime.now());
@@ -66,6 +64,14 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
         User astrologer = userRepository.findById(astrologerId)
                 .orElseThrow(() -> new UserNotFoundException("Astrologer not found with ID: " + astrologerId));
+
+        if(request.getToAcceptAstrologerIds().contains(astrologer)){
+             throw new ResourceAlreadyExists("The requests already exists please try some other request");
+        }
+
+        if (user.getAcceptedConsultationIds().contains(requestId) && user.getAcceptedConsultationIds().contains(astrologerId)){
+            throw new ResourceAlreadyExists("The request is already active.");
+        }
 
         // Check if astrologer is blocked by user
         if (user.getBlockedAstrologerIds().contains(astrologerId)) {
@@ -109,12 +115,17 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
-    public List<ConsultationResponseDto> getAllAvailableRequests() {
+    public List<ConsultationResponseDto> getAllAvailableRequests(UUID astrologerId) {
         List<ConsultationRequest> allRequests = consultationRequestRepository.findAll();
+        User astrologer = userRepository.findById(astrologerId)
+                .orElseThrow(() -> new UserNotFoundException("Astrologer not found with ID: " + astrologerId));
 
         // Filter requests that are still open for acceptance
         List<ConsultationRequest> availableRequests = allRequests.stream()
-                .filter(ConsultationRequest::isOpenForAll)
+                .filter(ConsultationRequest::isOpenForAll)  // Check if the request is still open
+                .filter(request -> request.getRequestStatus() == RequestStatus.PROGRESS)  // Only in-progress requests
+                .filter(request -> !request.getAcceptingAstrologersId().contains(astrologer))  // Not already accepted
+                .filter(request -> !request.getToAcceptAstrologerIds().contains(astrologer))  // Not already in waiting list
                 .collect(Collectors.toList());
 
         return consultationRequestMapper.toDtoList(availableRequests);
@@ -166,4 +177,18 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         // Save updated chat sessions
         chatSessionRepository.saveAll(chatSessions);
     }
+
+    @Override
+    public List<ConsultationResponseDto> findAllWaitingRequests(UUID userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new DataNotFoundException("User not found")
+        );
+        List<ConsultationRequest> requests = consultationRequestRepository.findByUserId(userId);
+
+        return requests.stream()
+                .filter(request -> !request.getToAcceptAstrologerIds().isEmpty())
+                .map(consultationRequestMapper::toDto)
+                .toList();
+    }
+
 }

@@ -67,8 +67,9 @@ public class ConsultationRequestController {
     @ApiResponse(responseCode = "200", description = "Successfully retrieved available requests",
             content = @Content(schema = @Schema(implementation = ConsultationResponseDto.class)))
     @PreAuthorize("hasAuthority('ROLE_ASTROLOGER')")
-    public ResponseEntity<List<ConsultationResponseDto>> getAllAvailableRequests() {
-        List<ConsultationResponseDto> availableRequests = consultationRequestService.getAllAvailableRequests();
+    public ResponseEntity<List<ConsultationResponseDto>> getAllAvailableRequests(@RequestParam UUID astrologerId) {
+
+        List<ConsultationResponseDto> availableRequests = consultationRequestService.getAllAvailableRequests(astrologerId);
         return ResponseEntity.ok(availableRequests);
     }
 
@@ -85,6 +86,13 @@ public class ConsultationRequestController {
             @Parameter(description = "ID of the user") @PathVariable UUID userId) {
         List<ConsultationResponseDto> userRequests = consultationRequestService.getUserRequests(userId);
         return ResponseEntity.ok(userRequests);
+    }
+
+
+    @GetMapping("/waiting-requests/{userId}")
+    public ResponseEntity<?> findAllWaitingRequests(@PathVariable UUID userId){
+        List<ConsultationResponseDto> requests = consultationRequestService.findAllWaitingRequests(userId);
+        return new ResponseEntity<>(requests,HttpStatus.OK);
     }
 
     @DeleteMapping("/{requestId}")

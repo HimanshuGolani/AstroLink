@@ -28,8 +28,10 @@ public class ConsultationRequest implements Comparable<ConsultationRequest> {
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
     private RequestStatus requestStatus = RequestStatus.PROGRESS;
 
+//     for user only to accept the pending requests
     @DBRef
     private List<User> toAcceptAstrologerIds = new ArrayList<>();
+//  the current sets of astrologer ids that are accepted by users
     @DBRef
     private List<User> acceptingAstrologersId = new ArrayList<>();
     @Setter

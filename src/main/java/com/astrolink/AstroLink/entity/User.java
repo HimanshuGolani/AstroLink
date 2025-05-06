@@ -32,9 +32,13 @@ public class User implements UserDetails {
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
 
+//    only for user
     private Set<UUID> consultationRequestIds = new TreeSet<>();
+//    only for user
     private Set<UUID> blockedAstrologerIds = new HashSet<>();
+//    for astrologer only
     private Set<UUID> acceptedConsultationIds = new HashSet<>();
+//    this for users as well as the astrologer
     private Set<UUID> activeChatSessionIds = new HashSet<>();
 
     @Override
