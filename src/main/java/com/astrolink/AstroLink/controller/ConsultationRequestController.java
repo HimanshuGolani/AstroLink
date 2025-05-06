@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class ConsultationRequestController {
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<ConsultationResponseDto> createConsultationRequest(
             @Parameter(description = "ID of the user creating the request") @PathVariable UUID userId,
-            @Parameter(description = "Request details") @RequestBody ConsultationRequestCreateDto requestDto) {
+            @Parameter(description = "Request details") @Valid @RequestBody ConsultationRequestCreateDto requestDto) {
         ConsultationResponseDto createdRequest = consultationRequestService.createConsultationRequest(userId, requestDto);
         return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
     }

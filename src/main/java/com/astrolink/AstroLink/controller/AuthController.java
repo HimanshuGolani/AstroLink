@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class AuthController {
             @ApiResponse(responseCode = "409", description = "User already exists", content = @Content)
     })
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest registrationRequest){
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest){
         authService.register(registrationRequest);
         return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
     }
@@ -46,7 +47,7 @@ public class AuthController {
             @ApiResponse(responseCode = "403", description = "Account locked or disabled", content = @Content)
     })
     @PostMapping("/login")
-    public ResponseEntity<?> userLogin(@RequestBody LoginRequestDto loginRequest) {
+    public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDto loginRequest) {
         try {
             Map<String, Object> response = authService.login(loginRequest);
             String token = (String) response.get("token");
