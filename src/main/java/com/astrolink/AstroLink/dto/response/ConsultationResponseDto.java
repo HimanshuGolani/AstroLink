@@ -1,6 +1,7 @@
 package com.astrolink.AstroLink.dto.response;
 
 import com.astrolink.AstroLink.entity.PaymentStatus;
+import com.astrolink.AstroLink.entity.RequestStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class ConsultationResponseDto {
     private String birthTime;
     private String birthPlace;
     private PaymentStatus paymentStatus;
+    private RequestStatus requestStatus;
     private boolean isOpenForAll;
     private LocalDateTime createdAt;
     private int acceptingAstrologersCount;
