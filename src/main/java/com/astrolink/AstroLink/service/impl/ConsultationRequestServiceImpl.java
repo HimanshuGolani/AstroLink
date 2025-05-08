@@ -2,6 +2,7 @@ package com.astrolink.AstroLink.service.impl;
 
 import com.astrolink.AstroLink.dto.mapper.ConsultationRequestMapper;
 import com.astrolink.AstroLink.dto.request.ConsultationRequestCreateDto;
+import com.astrolink.AstroLink.dto.response.AstrologerDetailsDto;
 import com.astrolink.AstroLink.dto.response.ConsultationResponseDto;
 import com.astrolink.AstroLink.entity.*;
 import com.astrolink.AstroLink.exception.custom.*;
@@ -180,15 +181,31 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
     @Override
     public List<ConsultationResponseDto> findAllWaitingRequests(UUID userId) {
+
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new DataNotFoundException("User not found")
         );
+
         List<ConsultationRequest> requests = consultationRequestRepository.findByUserId(userId);
 
         return requests.stream()
                 .filter(request -> !request.getToAcceptAstrologerIds().isEmpty())
-                .map(consultationRequestMapper::toDto)
+                .map(request -> {
+                    ConsultationResponseDto dto = consultationRequestMapper.toDto(request);
+
+                    List<AstrologerDetailsDto> astrologerDetails = request.getToAcceptAstrologerIds()
+                            .stream()
+                            .map(astrologer -> new AstrologerDetailsDto(
+                                    astrologer.getId(),
+                                    astrologer.getRating()
+                            ))
+                            .toList();
+
+                    dto.setAstrologerDetails(astrologerDetails);
+                    return dto;
+                })
                 .toList();
     }
+
 
 }
