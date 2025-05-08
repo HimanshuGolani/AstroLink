@@ -24,7 +24,7 @@ public class User implements UserDetails {
     private Role role;
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
     private String expertise;
-    private double rating;
+    private int rating;
 
     // Account status fields
     private boolean accountNonExpired = true;
