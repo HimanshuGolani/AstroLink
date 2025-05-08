@@ -3,6 +3,7 @@ package com.astrolink.AstroLink.service.impl;
 import com.astrolink.AstroLink.dto.request.LoginRequestDto;
 import com.astrolink.AstroLink.dto.request.RegistrationRequest;
 import com.astrolink.AstroLink.dto.response.LoginResponseDto;
+import com.astrolink.AstroLink.entity.PaymentStatus;
 import com.astrolink.AstroLink.entity.Role;
 import com.astrolink.AstroLink.entity.User;
 import com.astrolink.AstroLink.exception.custom.DataNotFoundException;
@@ -54,6 +55,9 @@ public class AuthServiceImpl implements AuthService {
             user.setRole(role);
 
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            user.setPaymentStatus(PaymentStatus.PAID);
+
             userRepository.save(user);
         }
         catch (IllegalArgumentException e){

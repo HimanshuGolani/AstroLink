@@ -12,6 +12,10 @@ import java.util.UUID;
 @Repository
 public interface ChatSessionRepository extends MongoRepository<ChatSession, UUID> {
     Optional<ChatSession> findByConsultationRequestId(UUID consultationRequestId);
+
+    @Query("{ 'userId' : ?0, 'astrologerId' : ?1, 'consultationRequestId' : ?2 }")
+    List<ChatSession> findAllByUserIdAndAstrologerIdAndConsultationRequestId(
+            UUID userId, UUID astrologerId, UUID consultationRequestId);
     @Query("{ 'consultationRequestId' : ?0 }")
     List<ChatSession> findByConsultationsRequestId(UUID consultationRequestId);
     void deleteByConsultationRequestId(UUID consultationRequestId);

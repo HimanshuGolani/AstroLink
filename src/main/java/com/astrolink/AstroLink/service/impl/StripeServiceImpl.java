@@ -26,7 +26,7 @@ public class StripeServiceImpl implements StripeService {
     private final FinderClassUtil finderClassUtil;
     private final ConsultationRequestRepository consultationRequestRepository;
 
-    @Value("${stripe.secret-key}")
+    @Value("${stripe.secretKey}")
     private String secretKey;
 
     @Value("${stripe.success-url}")

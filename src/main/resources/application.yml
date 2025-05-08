@@ -32,3 +32,10 @@ springdoc:
 springfox:
   documentation:
      swagger-ui.base-url: /swagger-ui
+
+payment:
+  standard-chat-fee: 5000
+  premium-chat-fee: 10000
+  emergency-consultation-fee: 15000
+  currency: inr
+  free-chats-limit: 3
