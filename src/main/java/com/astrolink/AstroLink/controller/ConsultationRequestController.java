@@ -54,7 +54,7 @@ public class ConsultationRequestController {
             @ApiResponse(responseCode = "404", description = "Request or astrologer not found"),
             @ApiResponse(responseCode = "400", description = "Cannot accept request (blocked or already at capacity)")
     })
-    @PreAuthorize("hasAuthority('ROLE_ASTROLOGER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<ConsultationResponseDto> acceptConsultationRequest(
             @Parameter(description = "ID of the request to accept") @PathVariable UUID requestId,
             @Parameter(description = "ID of the astrologer accepting the request") @PathVariable UUID astrologerId) {

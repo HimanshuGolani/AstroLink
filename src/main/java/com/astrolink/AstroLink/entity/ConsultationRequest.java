@@ -9,9 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Document(collection = "consultation-request")
 @Data
@@ -30,7 +28,7 @@ public class ConsultationRequest implements Comparable<ConsultationRequest> {
 
 //     for user only to accept the pending requests
     @DBRef
-    private List<User> toAcceptAstrologerIds = new ArrayList<>();
+    private Set<User> toAcceptAstrologerIds = new TreeSet<>();
 //  the current sets of astrologer ids that are accepted by users
     @DBRef
     private List<User> acceptingAstrologersId = new ArrayList<>();
