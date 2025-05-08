@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -22,5 +23,6 @@ public class ConsultationResponseDto {
     private RequestStatus requestStatus;
     private boolean isOpenForAll;
     private LocalDateTime createdAt;
+    private List<AstrologerDetailsDto> astrologerDetails;
     private int acceptingAstrologersCount;
 }
