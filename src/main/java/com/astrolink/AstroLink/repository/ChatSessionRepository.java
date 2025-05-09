@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface ChatSessionRepository extends MongoRepository<ChatSession, UUID> {
     Optional<ChatSession> findByConsultationRequestId(UUID consultationRequestId);
 
-    @Query("{ 'userId' : ?0, 'astrologerId' : ?1, 'consultationRequestId' : ?2 }")
+    @Query("{ 'userId' : ?1, 'astrologerId' : ?1, 'consultationRequestId' : ?2 }")
     List<ChatSession> findAllByUserIdAndAstrologerIdAndConsultationRequestId(
             UUID userId, UUID astrologerId, UUID consultationRequestId);
     @Query("{ 'consultationRequestId' : ?0 }")

@@ -96,20 +96,20 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         astrologer.getAcceptedConsultationIds().add(requestId);
         userRepository.save(astrologer);
 
-        // Create a chat session
-        ChatSession chatSession = ChatSession.builder()
-                .id(UUID.randomUUID())
-                .consultationRequestId(requestId)
-                .userId(user.getId())
-                .astrologerId(astrologerId)
-                .lastActive(LocalDateTime.now())
-                .build();
-
-        chatSessionRepository.save(chatSession);
+//        // Create a chat session
+//        ChatSession chatSession = ChatSession.builder()
+//                .id(UUID.randomUUID())
+//                .consultationRequestId(requestId)
+//                .userId(user.getId())
+//                .astrologerId(astrologerId)
+//                .lastActive(LocalDateTime.now())
+//                .build();
+//
+//        chatSessionRepository.save(chatSession);
 
         // Update active chat sessions for both user and astrologer
-        user.getActiveChatSessionIds().add(chatSession.getId());
-        astrologer.getActiveChatSessionIds().add(chatSession.getId());
+//        user.getActiveChatSessionIds().add(chatSession.getId());
+//        astrologer.getActiveChatSessionIds().add(chatSession.getId());
 
         userRepository.save(user);
         userRepository.save(astrologer);
