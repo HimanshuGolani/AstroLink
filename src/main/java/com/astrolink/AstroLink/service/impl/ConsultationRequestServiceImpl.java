@@ -1,5 +1,6 @@
 package com.astrolink.AstroLink.service.impl;
 
+import com.astrolink.AstroLink.config.ChatConfig;
 import com.astrolink.AstroLink.dto.mapper.ConsultationRequestMapper;
 import com.astrolink.AstroLink.dto.request.ConsultationRequestCreateDto;
 import com.astrolink.AstroLink.dto.response.AstrologerDetailsDto;
@@ -224,7 +225,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
 
             // Define the inactivity threshold (e.g., 30 days)
-            LocalDateTime inactivityThreshold = LocalDateTime.now().minusDays(30);
+            LocalDateTime inactivityThreshold = LocalDateTime.now().minusDays(ChatConfig.inactivityDays);
 
             // Find all inactive chat sessions
             List<ChatSession> inactiveSessions = chatSessionRepository.findByLastActiveBefore(inactivityThreshold);

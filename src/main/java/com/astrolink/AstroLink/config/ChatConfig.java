@@ -8,5 +8,5 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "chat")
 @Data
 public class ChatConfig {
-    private int inactivityDays = 1; // Default value
+    public static int inactivityDays = 1; // Default value
 }
