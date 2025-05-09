@@ -25,4 +25,6 @@ public interface ConsultationRequestService {
 
     List<ConsultationResponseDto> findAllWaitingRequests(UUID userId);
 
+    void findAndRemoveInactiveChats();
+
 }

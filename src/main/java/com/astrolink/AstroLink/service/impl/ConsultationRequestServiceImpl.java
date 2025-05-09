@@ -144,6 +144,9 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         return consultationRequestMapper.toDtoList(userRequests);
     }
 
+
+
+
     @Override
     @Transactional
     public void closeRequest(UUID requestId) {
@@ -212,6 +215,49 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
                     return dto;
                 })
                 .toList();
+    }
+
+    @Transactional
+    @Override
+    public void findAndRemoveInactiveChats() {
+        try {
+
+
+            // Define the inactivity threshold (e.g., 30 days)
+            LocalDateTime inactivityThreshold = LocalDateTime.now().minusDays(30);
+
+            // Find all inactive chat sessions
+            List<ChatSession> inactiveSessions = chatSessionRepository.findByLastActiveBefore(inactivityThreshold);
+
+            // Process each inactive session
+            for (ChatSession session : inactiveSessions) {
+                try {
+                    // Remove chat session IDs from users
+                    User user = userRepository.findById(session.getUserId()).orElse(null);
+                    if (user != null) {
+                        user.getActiveChatSessionIds().remove(session.getId());
+                        userRepository.save(user);
+                    }
+
+                    User astrologer = userRepository.findById(session.getAstrologerId()).orElse(null);
+                    if (astrologer != null) {
+                        astrologer.getActiveChatSessionIds().remove(session.getId());
+                        userRepository.save(astrologer);
+                    }
+
+                    // Remove the chat session
+                    chatSessionRepository.delete(session);
+
+                } catch (Exception ex) {
+                    // Log error but continue processing other sessions
+                    throw new RuntimeException("Something went wrong");
+                }
+            }
+
+
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to clean up inactive chat sessions", ex);
+        }
     }
 
 

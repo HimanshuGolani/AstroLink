@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,4 +20,6 @@ public interface ChatSessionRepository extends MongoRepository<ChatSession, UUID
     @Query("{ 'consultationRequestId' : ?0 }")
     List<ChatSession> findByConsultationsRequestId(UUID consultationRequestId);
     void deleteByConsultationRequestId(UUID consultationRequestId);
+    @Query("{ 'lastActive' : { $lt: ?0 } }")
+    List<ChatSession> findByLastActiveBefore(LocalDateTime threshold);
 }
