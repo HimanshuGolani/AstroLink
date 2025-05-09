@@ -42,7 +42,8 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         consultationRequest.setUserId(userId);
         consultationRequest.setCreatedAt(LocalDateTime.now());
         consultationRequest.setAcceptingAstrologersId(new ArrayList<>());
-        consultationRequest.setPaymentStatus(PaymentStatus.PENDING);
+//         CHange the state to pending after the trial is ower
+        consultationRequest.setPaymentStatus(PaymentStatus.PAID);
         consultationRequest.setOpenForAll(true);
 
         ConsultationRequest savedRequest = consultationRequestRepository.save(consultationRequest);
@@ -181,24 +182,30 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
     @Override
     public List<ConsultationResponseDto> findAllWaitingRequests(UUID userId) {
-
+        // Verify user exists
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new DataNotFoundException("User not found")
         );
 
+        // Get all consultation requests for this user
         List<ConsultationRequest> requests = consultationRequestRepository.findByUserId(userId);
 
         return requests.stream()
-                .filter(request -> !request.getToAcceptAstrologerIds().isEmpty())
+                // Only include requests that have waiting astrologers
+                .filter(request -> request.getToAcceptAstrologerIds() != null && !request.getToAcceptAstrologerIds().isEmpty())
                 .map(request -> {
+                    // Convert request to DTO
                     ConsultationResponseDto dto = consultationRequestMapper.toDto(request);
 
+                    // If getToAcceptAstrologerIds returns User objects:
                     List<AstrologerDetailsDto> astrologerDetails = request.getToAcceptAstrologerIds()
                             .stream()
-                            .map(astrologer -> new AstrologerDetailsDto(
-                                    astrologer.getId(),
-                                    astrologer.getRating()
-                            ))
+                            .map(astrologer -> {
+                                return new AstrologerDetailsDto(
+                                        astrologer.getId(),
+                                        astrologer.getRating()
+                                );
+                            })
                             .toList();
 
                     dto.setAstrologerDetails(astrologerDetails);

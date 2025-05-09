@@ -224,9 +224,6 @@ public class ChatServiceImpl implements ChatService {
             if (user.getPaymentStatus() == PaymentStatus.PAID) {
                 log.debug("Using premium chat fee for paid user");
                 return paymentConfig.getPremiumChatFee();
-            } else if (isEmergencyConsultation(consultationRequest)) {
-                log.debug("Using emergency consultation fee");
-                return paymentConfig.getEmergencyConsultationFee();
             } else {
                 log.debug("Using standard chat fee");
                 return paymentConfig.getStandardChatFee();
@@ -238,17 +235,4 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
-    /**
-     * Determine if a consultation is an emergency based on its title or other properties
-     */
-    private boolean isEmergencyConsultation(ConsultationRequest consultationRequest) {
-        if (consultationRequest == null || consultationRequest.getTitle() == null) {
-            return false;
-        }
-
-        String title = consultationRequest.getTitle().toLowerCase();
-        return title.contains("emergency") ||
-                title.contains("urgent") ||
-                title.contains("immediate");
-    }
 }
