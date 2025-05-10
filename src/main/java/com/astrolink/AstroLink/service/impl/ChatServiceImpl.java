@@ -159,6 +159,7 @@ public class ChatServiceImpl implements ChatService {
             throw new RuntimeException("Unexpected error while creating chat", ex);
         }
     }
+
     @Override
     public List<SmallChatsResponseDto> getAllSmallChats(UUID userId) {
         try {
