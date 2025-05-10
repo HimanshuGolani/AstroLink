@@ -12,6 +12,7 @@ import com.astrolink.AstroLink.repository.ConsultationRequestRepository;
 import com.astrolink.AstroLink.repository.UserRepository;
 import com.astrolink.AstroLink.service.ConsultationRequestService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ConsultationRequestServiceImpl implements ConsultationRequestService {
 
     private final ConsultationRequestRepository consultationRequestRepository;
@@ -184,6 +186,40 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         chatSessionRepository.saveAll(chatSessions);
     }
 
+//    @Override
+//    public List<ConsultationResponseDto> findAllWaitingRequests(UUID userId) {
+//        // Verify user exists
+//        User user = userRepository.findById(userId).orElseThrow(
+//                () -> new DataNotFoundException("User not found")
+//        );
+//
+//        // Get all consultation requests for this user
+//        List<ConsultationRequest> requests = consultationRequestRepository.findByUserId(userId);
+//
+//        return requests.stream()
+//                // Only include requests that have waiting astrologers
+//                .filter(request -> request.getToAcceptAstrologerIds() != null && !request.getToAcceptAstrologerIds().isEmpty())
+//                .map(request -> {
+//                    // Convert request to DTO
+//                    ConsultationResponseDto dto = consultationRequestMapper.toDto(request);
+//
+//                    // If getToAcceptAstrologerIds returns User objects:
+//                    List<AstrologerDetailsDto> astrologerDetails = request.getToAcceptAstrologerIds()
+//                            .stream()
+//                            .map(astrologer -> {
+//                                return new AstrologerDetailsDto(
+//                                        astrologer.getId(),
+//                                        astrologer.getRating()
+//                                );
+//                            })
+//                            .toList();
+//
+//                    dto.setAstrologerDetails(astrologerDetails);
+//                    return dto;
+//                })
+//                .toList();
+//    }
+
     @Override
     public List<ConsultationResponseDto> findAllWaitingRequests(UUID userId) {
         // Verify user exists
@@ -194,28 +230,50 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         // Get all consultation requests for this user
         List<ConsultationRequest> requests = consultationRequestRepository.findByUserId(userId);
 
+        // Log how many requests were found for debugging
+        log.debug("Found {} consultation requests for user {}", requests.size(), userId);
+
         return requests.stream()
                 // Only include requests that have waiting astrologers
-                .filter(request -> request.getToAcceptAstrologerIds() != null && !request.getToAcceptAstrologerIds().isEmpty())
+                .filter(request -> {
+                    boolean hasWaitingAstrologers = request.getToAcceptAstrologerIds() != null &&
+                            !request.getToAcceptAstrologerIds().isEmpty();
+
+                    // Add debug logging
+                    if (!hasWaitingAstrologers) {
+                        log.debug("Request {} has no waiting astrologers", request.getId());
+                    } else {
+                        log.debug("Request {} has {} waiting astrologers",
+                                request.getId(), request.getToAcceptAstrologerIds().size());
+                    }
+
+                    return hasWaitingAstrologers;
+                })
                 .map(request -> {
                     // Convert request to DTO
                     ConsultationResponseDto dto = consultationRequestMapper.toDto(request);
 
-                    // If getToAcceptAstrologerIds returns User objects:
-                    List<AstrologerDetailsDto> astrologerDetails = request.getToAcceptAstrologerIds()
-                            .stream()
-                            .map(astrologer -> {
-                                return new AstrologerDetailsDto(
+                    try {
+                        // Create astrologer details
+                        List<AstrologerDetailsDto> astrologerDetails = request.getToAcceptAstrologerIds()
+                                .stream()
+                                .map(astrologer -> new AstrologerDetailsDto(
                                         astrologer.getId(),
                                         astrologer.getRating()
-                                );
-                            })
-                            .toList();
+                                ))
+                                .collect(Collectors.toList());
 
-                    dto.setAstrologerDetails(astrologerDetails);
+                        dto.setAstrologerDetails(astrologerDetails);
+                    } catch (Exception e) {
+                        log.error("Error processing astrologers for request {}: {}",
+                                request.getId(), e.getMessage(), e);
+                        // Set empty list in case of error
+                        dto.setAstrologerDetails(new ArrayList<>());
+                    }
+
                     return dto;
                 })
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Transactional
