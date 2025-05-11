@@ -12,7 +12,6 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class MessageDto {
     private String content;
     private UUID senderId;

@@ -45,3 +45,8 @@ payment:
   free-chats-limit: 3
 
 
+
+logging:
+  level:
+    org.springframework.web.socket: TRACE
+    org.springframework.messaging: TRACE
