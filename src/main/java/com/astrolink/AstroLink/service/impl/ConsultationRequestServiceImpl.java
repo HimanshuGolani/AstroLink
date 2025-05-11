@@ -70,7 +70,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         User astrologer = userRepository.findById(astrologerId)
                 .orElseThrow(() -> new UserNotFoundException("Astrologer not found with ID: " + astrologerId));
 
-        if(request.getToAcceptAstrologerIds().contains(astrologer)){
+        if(request.getToAcceptAstrologerIds().contains(astrologerId)){
              throw new ResourceAlreadyExists("The requests already exists please try some other request");
         }
 
@@ -129,8 +129,8 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         List<ConsultationRequest> availableRequests = allRequests.stream()
                 .filter(ConsultationRequest::isOpenForAll)  // Check if the request is still open
                 .filter(request -> request.getRequestStatus() == RequestStatus.PROGRESS)  // Only in-progress requests
-                .filter(request -> !request.getAcceptingAstrologersId().contains(astrologer))  // Not already accepted
-                .filter(request -> !request.getToAcceptAstrologerIds().contains(astrologer))  // Not already in waiting list
+                .filter(request -> !request.getAcceptingAstrologersId().contains(astrologerId))  // Not already accepted
+                .filter(request -> !request.getToAcceptAstrologerIds().contains(astrologerId))  // Not already in waiting list
                 .collect(Collectors.toList());
 
         return consultationRequestMapper.toDtoList(availableRequests);
