@@ -11,6 +11,10 @@ spring:
 
 server:
   port: 8090
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,text/css,text/javascript,application/javascript
+    min-response-size: 2048
 
 rsa:
   public-key: classpath:certs/public.pem
@@ -39,3 +43,5 @@ payment:
   emergency-consultation-fee: 15000
   currency: inr
   free-chats-limit: 3
+
+

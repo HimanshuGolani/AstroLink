@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -130,6 +129,7 @@ public class ChatServiceImpl implements ChatService {
             userRepository.save(consultationRequestCreator);
 
             astrologer.getActiveChatSessionIds().add(chatSession.getId());
+            astrologer.getAcceptedConsultationIds().add(consultationRequestId);
             userRepository.save(astrologer);
 
             // Update consultation request
@@ -154,9 +154,6 @@ public class ChatServiceImpl implements ChatService {
         } catch (RuntimeException ex) {
             log.error("Runtime error creating chat: {}", ex.getMessage(), ex);
             throw new RuntimeException("Failed to create chat: " + ex.getMessage(), ex);
-        } catch (Exception ex) {
-            log.error("Unexpected error creating chat: {}", ex.getMessage(), ex);
-            throw new RuntimeException("Unexpected error while creating chat", ex);
         }
     }
 
