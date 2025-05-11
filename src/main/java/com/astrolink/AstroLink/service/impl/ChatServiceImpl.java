@@ -133,8 +133,8 @@ public class ChatServiceImpl implements ChatService {
             userRepository.save(astrologer);
 
             // Update consultation request
-            consultationRequest.getToAcceptAstrologerIds().remove(astrologer);
-            consultationRequest.getAcceptingAstrologersId().add(astrologer);
+            consultationRequest.getToAcceptAstrologerIds().remove(astrologerId);
+            consultationRequest.getAcceptingAstrologersId().add(astrologerId);
             consultationRequestRepository.save(consultationRequest);
 
             response.setChatSession(chatSessionDto);

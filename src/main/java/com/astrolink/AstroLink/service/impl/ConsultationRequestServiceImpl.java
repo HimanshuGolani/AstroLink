@@ -89,7 +89,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
 
         // Add astrologer to accepting astrologers
-        request.getToAcceptAstrologerIds().add(astrologer);
+        request.getToAcceptAstrologerIds().add(astrologerId);
 
 
         ConsultationRequest updatedRequest = consultationRequestRepository.save(request);
@@ -257,6 +257,9 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
                         // Create astrologer details
                         List<AstrologerDetailsDto> astrologerDetails = request.getToAcceptAstrologerIds()
                                 .stream()
+                                .map( entity -> userRepository.findById(entity).orElseThrow(
+                                        () -> new DataNotFoundException("Astrologer not found")
+                                ))
                                 .map(astrologer -> new AstrologerDetailsDto(
                                         astrologer.getId(),
                                         astrologer.getRating()

@@ -27,11 +27,9 @@ public class ConsultationRequest implements Comparable<ConsultationRequest> {
     private RequestStatus requestStatus = RequestStatus.PROGRESS;
 
 //     for user only to accept the pending requests
-    @DBRef
-    private List<User> toAcceptAstrologerIds = new ArrayList<>();
+    private List<UUID> toAcceptAstrologerIds = new ArrayList<>();
 //  the current sets of astrologer ids that are accepted by users
-    @DBRef
-    private List<User> acceptingAstrologersId = new ArrayList<>();
+    private List<UUID> acceptingAstrologersId = new ArrayList<>();
     @Setter
     private boolean openForAll;
 

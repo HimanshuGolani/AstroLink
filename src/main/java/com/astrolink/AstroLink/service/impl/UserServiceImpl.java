@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
                                 .map(astrologer ->
                                         consultationRequestMapper.toAcceptingAstrologersDto(
                                                 user,
-                                                astrologer,
+                                                util.findUserById(astrologer),
                                                 consultationRequest
                                         )
                                 )

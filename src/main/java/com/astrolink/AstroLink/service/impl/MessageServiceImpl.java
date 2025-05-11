@@ -7,7 +7,6 @@ import com.astrolink.AstroLink.entity.ChatMessage;
 import com.astrolink.AstroLink.entity.ChatSession;
 import com.astrolink.AstroLink.repository.ChatMessageRepository;
 import com.astrolink.AstroLink.repository.ChatSessionRepository;
-import com.astrolink.AstroLink.service.ChatService;
 import com.astrolink.AstroLink.service.MessagingService;
 import com.astrolink.AstroLink.util.FinderClassUtil;
 import lombok.RequiredArgsConstructor;
