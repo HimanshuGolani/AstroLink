@@ -7,6 +7,7 @@ import com.astrolink.AstroLink.dto.response.ChatSessionDto;
 import com.astrolink.AstroLink.dto.response.SmallChatsResponseDto;
 import com.astrolink.AstroLink.entity.ChatMessage;
 import com.astrolink.AstroLink.entity.ChatSession;
+import com.astrolink.AstroLink.entity.ConsultationRequest;
 import com.astrolink.AstroLink.entity.MessageType;
 import org.mapstruct.*;
 
@@ -30,11 +31,13 @@ public interface ChatMapper {
 
     List<ChatMessageDto> toMessageDtoList(List<ChatMessage> messages);
 
-    @Mapping(target = "chatId", source = "id")
+    @Mapping(target = "chatId", source = "chatSession.id")
     @Mapping(target = "chatName", expression = "java(\"Chat \" + chatSession.getId().toString().substring(0, 8))")
-    @Mapping(target = "consultationId", source = "consultationRequestId")  // Map the consultation ID
-    @Mapping(target = "lastUpdatedAt", source = "lastActive")
-    SmallChatsResponseDto toSmallChat(ChatSession chatSession);
+    @Mapping(target = "consultationId", source = "chatSession.consultationRequestId")
+    @Mapping(target = "lastUpdatedAt", source = "chatSession.lastActive")
+    @Mapping(target = "issue", source = "consultationRequest.title")
+    SmallChatsResponseDto toSmallChat(ChatSession chatSession, ConsultationRequest consultationRequest);
+
 
     @Mapping(target = "chatId", source = "id")
     @Mapping(target = "consultationId", source = "consultationRequestId")

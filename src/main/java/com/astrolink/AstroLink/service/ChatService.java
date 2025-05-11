@@ -12,4 +12,5 @@ public interface ChatService {
     ChatInitiationResponse createChat(UUID astrologerId, UUID consultationRequestId);
     List<SmallChatsResponseDto> getAllSmallChats(UUID userId);
     ChatDto getChatById(UUID userId, UUID chatId);
-}
+    public List<SmallChatsResponseDto> getAllSmallChatsAstrologer(UUID userId);
+    }

@@ -2,6 +2,7 @@ package com.astrolink.AstroLink.controller;
 
 import com.astrolink.AstroLink.dto.response.ChatDto;
 import com.astrolink.AstroLink.dto.response.ChatInitiationResponse;
+import com.astrolink.AstroLink.dto.response.SmallChatsResponseDto;
 import com.astrolink.AstroLink.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.w3c.dom.ls.LSInput;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,12 +35,21 @@ public class ChatController {
     }
 
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ASTROLOGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @Operation(summary = "Get all small chats for a user", description = "Returns a list of basic chat information for the user.")
     public ResponseEntity<?> getAllSmallChats(
-            @PathVariable @Parameter(description = "User UUID") UUID userId
+            @PathVariable @Parameter(description = "User/ASTROLOGER UUID") UUID userId
     ) {
         return new ResponseEntity<>(chatService.getAllSmallChats(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/astrologer/{astrologerId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ASTROLOGER')")
+    @Operation(summary = "Get all small chats for a user", description = "Returns a list of basic chat information for the astrologer.")
+    public ResponseEntity<List<SmallChatsResponseDto>> getAllAstrologerSmallChats(
+            @PathVariable @Parameter(description = "Astrologer UUID") UUID astrologerId
+    ) {
+        return new ResponseEntity<>(chatService.getAllSmallChatsAstrologer(astrologerId), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/{chatId}")

@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -172,13 +173,15 @@ public class ChatServiceImpl implements ChatService {
                     .stream()
                     .map(consultationId -> {
                         List<ChatSession> sessions = chatSessionRepository.findByConsultationsRequestId(consultationId);
+                        ConsultationRequest request = consultationRequestRepository.findById(consultationId).orElse(null); // fetch the request
                         log.debug("Found {} chat sessions for consultation ID: {}", sessions.size(), consultationId);
-                        return sessions;
+                        return sessions.stream()
+                                .map(chat -> chatMapper.toSmallChat(chat, request)) // pass both chat and request
+                                .toList();
                     })
-                    .filter(Objects::nonNull)
                     .flatMap(List::stream)
-                    .map(chatMapper::toSmallChat)
                     .toList();
+
 
         } catch (UserNotFoundException ex) {
             log.error("User not found while getting chats: {}", ex.getMessage());
@@ -188,6 +191,39 @@ public class ChatServiceImpl implements ChatService {
             throw new RuntimeException("Failed to retrieve chats: " + ex.getMessage(), ex);
         }
     }
+
+    @Override
+    public List<SmallChatsResponseDto> getAllSmallChatsAstrologer(UUID astrologerId) {
+        try {
+            User astrologer = finderClassUtil.findUserById(astrologerId);
+            if (astrologer == null) {
+                throw new UserNotFoundException("User with ID " + astrologerId + " not found");
+            }
+
+            return astrologer.getActiveChatSessionIds()
+                    .stream()
+                    .map(chatSessionRepository::findById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(chat -> {
+                        ConsultationRequest request = consultationRequestRepository
+                                .findById(chat.getConsultationRequestId())
+                                .orElseThrow(() -> new DataNotFoundException(
+                                        "Consultation request not found for chat session " + chat.getId()));
+                        return chatMapper.toSmallChat(chat, request);
+                    })
+                    .toList();
+
+
+
+        } catch (UserNotFoundException ex) {
+            log.error("User not found while getting chats: {}", ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to retrieve chats: " + ex.getMessage(), ex);
+        }
+    }
+
 
     @Override
     public ChatDto getChatById(UUID userId, UUID chatId) {

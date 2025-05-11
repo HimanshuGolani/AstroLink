@@ -13,6 +13,7 @@ import java.util.UUID;
 public class SmallChatsResponseDto {
     private UUID chatId;
     private String chatName;
+    private String issue;
     private UUID consultationId;
     private LocalDateTime lastUpdatedAt;
 }
