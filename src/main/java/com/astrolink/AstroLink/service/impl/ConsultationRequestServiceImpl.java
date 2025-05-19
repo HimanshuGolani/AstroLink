@@ -284,7 +284,6 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     public void findAndRemoveInactiveChats() {
         try {
 
-
             // Define the inactivity threshold (e.g., 30 days)
             LocalDateTime inactivityThreshold = LocalDateTime.now().minusDays(ChatConfig.inactivityDays);
 
