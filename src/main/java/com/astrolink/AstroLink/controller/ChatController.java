@@ -62,4 +62,14 @@ public class ChatController {
         ChatDto chatDto = chatService.getChatById(userId, chatId);
         return ResponseEntity.ok(chatDto);
     }
+
+    @DeleteMapping("/{userId}/{chatId}")
+    public ResponseEntity<Void> deleteChat(
+            @PathVariable @Parameter(description = "User UUID") UUID userId,
+            @PathVariable @Parameter(description = "Chat Session UUID") UUID chatId
+    ) {
+        chatService.deleteChat(userId, chatId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

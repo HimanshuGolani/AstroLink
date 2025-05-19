@@ -224,6 +224,20 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
+    @Override
+    @Transactional
+    public void deleteChat(UUID userId, UUID chatId) {
+        User user = finderClassUtil.findUserById(userId);
+        if(!user.getActiveChatSessionIds().contains(chatId)){
+            throw new DataNotFoundException("Chat session not found in user active chat sessions with ID " + chatId + " not found for user " + userId);
+        }
+        ChatSession chatSession = chatSessionRepository.findById(chatId)
+                .orElseThrow(() -> new DataNotFoundException("Chat session with ID " + chatId + " not found"));
+        chatSessionRepository.delete(chatSession);
+        user.getActiveChatSessionIds().remove(chatId);
+        userRepository.save(user);
+    }
+
 
     @Override
     public ChatDto getChatById(UUID userId, UUID chatId) {
@@ -268,5 +282,6 @@ public class ChatServiceImpl implements ChatService {
             return paymentConfig.getStandardChatFee();
         }
     }
+
 
 }

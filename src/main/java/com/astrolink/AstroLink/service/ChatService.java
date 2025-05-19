@@ -2,7 +2,6 @@ package com.astrolink.AstroLink.service;
 
 import com.astrolink.AstroLink.dto.response.ChatDto;
 import com.astrolink.AstroLink.dto.response.ChatInitiationResponse;
-import com.astrolink.AstroLink.dto.response.ChatSessionDto;
 import com.astrolink.AstroLink.dto.response.SmallChatsResponseDto;
 
 import java.util.List;
@@ -12,5 +11,6 @@ public interface ChatService {
     ChatInitiationResponse createChat(UUID astrologerId, UUID consultationRequestId);
     List<SmallChatsResponseDto> getAllSmallChats(UUID userId);
     ChatDto getChatById(UUID userId, UUID chatId);
-    public List<SmallChatsResponseDto> getAllSmallChatsAstrologer(UUID userId);
+    List<SmallChatsResponseDto> getAllSmallChatsAstrologer(UUID userId);
+    void deleteChat(UUID userId, UUID chatId);
     }
